@@ -1,7 +1,6 @@
 from pathlib import Path
 import os
 import sys
-from typing import List
 
 TOP = Path('../IEEExtreme14')
 DATA = (TOP / 'data')
@@ -10,30 +9,29 @@ DATA_OUTPUT = DATA / 'output'
 PROBLEM = (TOP / 'solutions')
 
 
-def given_problem(problem_name: str, input_data: List[str]):
+def given_problem(problem_name: str, input_test_case: str):
     """
-    Given a problem, and some input data,
-    produce its output by executing the file_driver
-    method in the Problem file.
+    Run the problem in a shell and
+    collect the outputs (not prints)
+    and return it.
 
     :param problem_name: The name of the problem to be tested.
-    :param input_data: The contents of the input file as a list of lines.
+    :param input_test_case: The name of the input test case.
     :return: The calculated output.
     """
-
-    module = __import__(f'solutions.{problem_name.title()}')
-    problem_class = getattr(module, problem_name.title())
-    current_problem = getattr(problem_class, problem_name.title())
-
-    problem_instance = current_problem(input_data)
-
-    return problem_instance.output
+    command = f'python solutions/{problem_name.title()}.py < data/input/{input_test_case}'
+    try:
+        output = os.popen(command)
+    except BrokenPipeError as e:
+        print(e)
+        output = None
+    return output
 
 
 def all_cases_per_problem(problem_name):
     """
-    Given a problem name, dynamically
-    test it against the test_cases defined
+    Given a problem name, test it
+    against the test_cases defined
     in the data/input and data/output
     directories.
 
@@ -45,20 +43,20 @@ def all_cases_per_problem(problem_name):
     sample_cases_input = DATA_INPUT.glob(f'{problem_name}*')
     sample_cases_output = DATA_OUTPUT.glob(f'{problem_name}*')
     print(f'Testing Problem: {problem_name}')
-    for case in zip(sorted(sample_cases_input), sorted(sample_cases_output)):
-        case_inp = case[0]
-        case_out = case[1]
-        with open(case_inp, 'r') as f_input:
-            content = [i for i in f_input]
-            solution = given_problem(problem_name, content)
-        with open(case_out, 'r') as f_output:
-            all_answer = f_output.readline()
-            if str(solution).rstrip() == all_answer.rstrip():
-                print(f'Test Case: {str(os.path.basename(case_inp))}', 'passed successfully!')
-            else:
-                print(f'Test Case: {str(os.path.basename(case_inp))}', 'FAILED!')
-                print(f'Output:', str(solution), '\t\t', 'Expected:', all_answer)
 
+    for case in zip(sorted(sample_cases_input), sorted(sample_cases_output)):
+        case_inp, case_out = case
+        solution_output = given_problem(problem_name, str(os.path.basename(case_inp)))
+        calculated_output = [i.rstrip() for i in solution_output]
+        with open(case_out, 'r') as f_output:
+            expected_output = [i.rstrip() for i in f_output]
+        passed = calculated_output == expected_output
+
+        if passed:
+            print(f'Test Case: {str(os.path.basename(case_inp))}', 'passed successfully!')
+        else:
+            print(f'Test Case: {str(os.path.basename(case_inp))}', 'FAILED!')
+            print(f'Output:', str(calculated_output), '\t\t', 'Expected:', expected_output)
     return
 
 
