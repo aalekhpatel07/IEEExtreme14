@@ -40,8 +40,8 @@ def all_cases_per_problem(problem_name):
     """
     problem_name = problem_name.title()
 
-    sample_cases_input = DATA_INPUT.glob(f'{problem_name}*')
-    sample_cases_output = DATA_OUTPUT.glob(f'{problem_name}*')
+    sample_cases_input = DATA_INPUT.glob(f'{problem_name}?.in')
+    sample_cases_output = DATA_OUTPUT.glob(f'{problem_name}?.out')
     print(f'Testing Problem: {problem_name}')
 
     for case in zip(sorted(sample_cases_input), sorted(sample_cases_output)):
