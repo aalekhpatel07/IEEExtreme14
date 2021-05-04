@@ -1,4 +1,9 @@
 # IEEExtreme14
+
+## Ranked 6th in Canada and TOP 200 worldwide.
+
+Some solutions may not be complete.
+
 ## A very basic custom test suite for competitive programming.
 
 **TLDR**:  Execute ```python driver.py ProblemA``` to test the solution to `ProblemA` against all the test cases.
